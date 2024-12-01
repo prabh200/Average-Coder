@@ -1,0 +1,93 @@
+#include <iostream>
+#include <string.h>
+
+int main(int argc, char* argv[]) {
+    if (argc == 1) {
+        std::cout << "No arguments provided.\n";
+        return 0;
+    }
+
+    std::string origin = "";
+    std::string destination = "";
+    bool tolls = true;
+    bool highways = true;
+    
+    for (int i = 1; i < argc; i++) {        
+        if (argv[i][0] == 'o' && argv[i][1] == '='){
+            //Origin argument is "o=argument"
+            std::string uOrigin = argv[1];
+            for (int i = 2; i < uOrigin.length(); i++){
+                if (uOrigin[i] == '+'){
+                    origin += "%2B";
+                }
+                else {
+                    origin += uOrigin[i];
+                }
+            }
+        }
+
+        if (argv[i][0] == 'd' && argv[i][1] == '='){
+            //Destination argument is "d=argument"
+            std::string uDestination = argv[1];
+            for (int i = 2; i < uDestination.length(); i++){
+                if (uDestination[i] == '+'){
+                    destination += "%2B";
+                }
+                else {
+                    destination += uDestination[i];
+                }
+            }
+        }
+
+        if (strcmp(argv[i], "-toll") == 0){
+            //No toll argument is "-toll"
+            tolls = false;
+        }
+
+        if (strcmp(argv[i], "-hwy") == 0){
+            //No highway argument is "-hwy"
+            highways = false;
+        }
+
+        if (strcmp(argv[i], "-help") == 0){
+            //Help argument is "-help"
+            std::cout << "Origin argument is 'o=argument'\n";
+            std::cout << "Destination argument is 'd=argument'\n";
+            std::cout << "No toll argument is '-toll'\n";
+            std::cout << "No highway argument is '-hwy'\n";
+            std::cout << "\n";
+            std::cout << "Multi-word arguments use plusses instead of spaces\n";
+            
+        }
+        
+    }
+
+    if (origin == "" || destination == "") {
+        std::cout << origin << destination;
+        std::cout << "Origin and/or destination unspecified.\n";
+        return 0;
+    }
+    
+    std::string address = "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + "&key=AIzaSyCvY8kGhtd9d-gibzGj2lQ3sGt77U5a2Dw&units=imperial";
+
+    if ((!tolls) && (!highways)){
+        address += "&avoid=tolls|highways";
+    }
+    else if (!highways){
+        address += "&avoid=highways";
+    }
+    else if (!tolls){
+        address += "&avoid=tolls";
+    }
+    
+    
+    std::cout << address << std::endl;
+
+    std::string command = "curl \"" + address + "\" -o route";
+    
+    system(command.c_str());
+    system("cat route");
+
+
+    return 0;
+}
